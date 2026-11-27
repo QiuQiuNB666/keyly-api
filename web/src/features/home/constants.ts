@@ -145,3 +145,10 @@ export function getDefaultFeatures(t: TFunction) {
     description: t(feature.description),
   }))
 }
+
+// Keyly API: hero background video (licensed via MotionSites, referenced by URL)
+export const KEYLY_HERO_VIDEO_URL =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260505_101331_74f9b798-3f00-4e86-8a01-377aa16ffeaa.mp4'
+
+// Keyly API: where redeem codes are sold
+export const KEYLY_SHOP_URL = 'https://keylyai.com'

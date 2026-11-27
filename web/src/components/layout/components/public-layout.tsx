@@ -17,6 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import type { TopNavLink } from '../types'
+import { Footer } from './footer'
 import { PublicHeader, type PublicHeaderProps } from './public-header'
 
 type PublicLayoutProps = {
@@ -30,6 +31,8 @@ type PublicLayoutProps = {
   showNotifications?: boolean
   logo?: React.ReactNode
   siteName?: string
+  /** Keyly API: slim footer with license link + attribution (default on). */
+  showFooter?: boolean
 }
 
 export function PublicLayout(props: PublicLayoutProps) {
@@ -53,6 +56,8 @@ export function PublicLayout(props: PublicLayoutProps) {
       ) : (
         props.children
       )}
+
+      {props.showFooter !== false && <Footer />}
     </div>
   )
 }

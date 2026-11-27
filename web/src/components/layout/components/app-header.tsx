@@ -24,6 +24,8 @@ import { Search } from '@/components/search'
 import { SystemUpdateAction } from '@/features/system-update/system-update-action'
 import { useNotifications } from '@/hooks/use-notifications'
 import { useTopNavLinks } from '@/hooks/use-top-nav-links'
+import { ROLE } from '@/lib/roles'
+import { useAuthStore } from '@/stores/auth-store'
 
 import { defaultTopNavLinks } from '../config/top-nav.config'
 import type { TopNavLink } from '../types'
@@ -110,6 +112,9 @@ export function AppHeader({
 
   // Notifications hook
   const notifications = useNotifications()
+  // Keyly API: buyers get a light-only, Chinese-first console; language and
+  // theme controls stay available to admins.
+  const isAdmin = useAuthStore((s) => (s.auth.user?.role ?? 0) >= ROLE.ADMIN)
 
   return (
     <Header>
@@ -144,8 +149,8 @@ export function AppHeader({
               loading={notifications.loading}
             />
           )}
-          <LanguageSwitcher />
-          {showConfigDrawer && <ConfigDrawer />}
+          {isAdmin && <LanguageSwitcher />}
+          {isAdmin && showConfigDrawer && <ConfigDrawer />}
           {showProfileDropdown && <ProfileDropdown />}
         </div>
       )}

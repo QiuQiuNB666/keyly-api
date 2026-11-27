@@ -89,7 +89,12 @@ export function useTopNavLinks(): TopNavLink[] {
   // Docs (supports external links)
   if (modules?.docs !== false) {
     if (docsLink) {
-      links.push({ title: t('Docs'), href: docsLink, external: true })
+      // Keyly API: a site-relative docs link (e.g. /docs) stays in the SPA.
+      links.push({
+        title: t('Docs'),
+        href: docsLink,
+        external: /^https?:\/\//.test(docsLink),
+      })
     } else {
       links.push({ title: t('Docs'), href: '/docs' })
     }

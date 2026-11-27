@@ -21,7 +21,9 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
+import { ROLE } from '@/lib/roles'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
 
 const FEEDBACK_URL = 'https://github.com/QuantumNous/new-api/issues'
 
@@ -46,6 +48,10 @@ export function GeneralError({
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { history } = useRouter()
+  // Keyly API: the upstream issue tracker is for operators, not buyers.
+  const showFeedback = useAuthStore(
+    (s) => (s.auth.user?.role ?? 0) >= ROLE.ADMIN
+  )
   useEffect(() => {
     if (
       !(error instanceof Error) ||
@@ -81,13 +87,15 @@ export function GeneralError({
     <div className={cn('h-svh w-full', className)}>
       <div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
         {!minimal && status !== undefined && (
-          <h1 className='text-[7rem] leading-tight font-bold'>{status}</h1>
+          <h1 className='text-foreground text-[7rem] leading-tight font-extralight tracking-[-0.04em]'>
+            {status}
+          </h1>
         )}
-        <span className='font-medium'>{title}</span>
+        <span className='text-foreground text-xl font-light'>{title}</span>
         <p className='text-muted-foreground text-center'>
           {t('We apologize for the inconvenience.')} <br /> {description}
         </p>
-        {!minimal && (
+        {!minimal && showFeedback && (
           <p className='text-muted-foreground text-center text-sm'>
             {t('If this keeps happening, please report it on GitHub Issues.')}
           </p>
@@ -97,18 +105,20 @@ export function GeneralError({
             <Button variant='outline' onClick={() => history.go(-1)}>
               {t('Go Back')}
             </Button>
-            <Button
-              variant='outline'
-              render={
-                <a
-                  href={FEEDBACK_URL}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                />
-              }
-            >
-              {t('Report an issue')}
-            </Button>
+            {showFeedback && (
+              <Button
+                variant='outline'
+                render={
+                  <a
+                    href={FEEDBACK_URL}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  />
+                }
+              >
+                {t('Report an issue')}
+              </Button>
+            )}
             <Button onClick={() => navigate({ to: '/' })}>
               {t('Back to Home')}
             </Button>

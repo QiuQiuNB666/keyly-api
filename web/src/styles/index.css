@@ -745,3 +745,38 @@ For commercial licensing, please contact support@quantumnous.com
     display: none;
   }
 }
+
+/* Keyly API: entrance motion from the MotionSites "Palomar Labs" mockup.
+ * Nav fades down (0/120/240ms), hero content fades up (240/360/480/600ms). */
+@keyframes keyly-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+@keyframes keyly-fade-down {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+.keyly-up {
+  animation: keyly-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.keyly-down {
+  animation: keyly-fade-down 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .keyly-up,
+  .keyly-down {
+    animation: none;
+  }
+}
+
+/* Keyly API: the sky primary (#7ec8f0) is a fill color; as text on white it
+ * fails contrast, so text-primary renders in the link blue in light mode. */
+@layer utilities {
+  :root:not(.dark) .text-primary {
+    color: var(--link);
+  }
+}

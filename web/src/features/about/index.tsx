@@ -17,7 +17,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { useQuery } from '@tanstack/react-query'
-import { Construction } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { PublicLayout } from '@/components/layout'
@@ -28,42 +27,66 @@ import { requireServerSuccess } from '@/lib/server-error-message'
 
 import { getAboutContent } from './api'
 
-function EmptyAboutState() {
+// Keyly API: AGPL-3.0 §5/§13 + NOTICE §7(b)/(c) compliance block. The
+// attribution sentence is required verbatim, so it is NOT passed through t().
+const NEW_API_ATTRIBUTION =
+  'Frontend design and development by New API contributors.'
+const NEW_API_REPOSITORY = 'https://github.com/QuantumNous/new-api'
+const MODIFIED_ON = '2026-11-27'
+
+function LicenseSection() {
   const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
+  const changes = [
+    t(
+      'Interface restyled with the Keyly palette and fonts; light theme by default'
+    ),
+    t(
+      'Home, header, sign-in, sign-up, wallet, model square and error pages redesigned'
+    ),
+    t(
+      'Console: icons unified to one color; language and theme switches shown to admins only'
+    ),
+    t('Model details: rate-limit figures simulated by the frontend are hidden'),
+    t('Footer and console sidebar link to this page'),
+  ]
 
   return (
-    <div className='flex min-h-[60vh] items-center justify-center p-8'>
-      <div className='max-w-2xl space-y-6 text-center'>
-        <div className='flex justify-center'>
-          <Construction className='text-muted-foreground h-24 w-24' />
-        </div>
-        <div className='space-y-2'>
-          <h2 className='text-2xl font-bold'>{t('No About Content Set')}</h2>
-          <p className='text-muted-foreground'>
+    <section
+      id='license'
+      className='mx-auto w-full max-w-3xl px-4 pt-28 pb-20 md:px-8'
+    >
+      <h1 className='keyly-up text-foreground text-4xl leading-[1.12] font-light tracking-[-0.03em] md:text-5xl'>
+        {t('Open source license')}
+      </h1>
+
+      <div className='keyly-up mt-12 space-y-10 [animation-delay:120ms]'>
+        <div className='space-y-3'>
+          <p className='text-foreground/50 text-xs tracking-[0.25em]'>
+            {t('Original project')}
+          </p>
+          <p className='text-foreground text-lg font-light'>
             {t(
-              'The administrator has not configured any about content yet. You can set it in the settings page, supporting HTML or URL.'
+              'This site is a modified version of the open source project New API.'
             )}
           </p>
-        </div>
-        <div className='space-y-4 text-sm'>
-          <p>
-            {t('New API Project Repository:')}{' '}
+          <p className='text-foreground text-base'>{NEW_API_ATTRIBUTION}</p>
+          <p className='text-sm'>
             <a
-              href='https://github.com/QuantumNous/new-api'
+              href={NEW_API_REPOSITORY}
               target='_blank'
               rel='noopener noreferrer'
-              className='text-primary hover:underline'
+              className='text-[var(--link)] hover:underline'
             >
-              {t('https://github.com/QuantumNous/new-api')}
+              {NEW_API_REPOSITORY}
             </a>
           </p>
-          <p className='text-muted-foreground'>
+          <p className='text-muted-foreground text-sm'>
             <a
-              href='https://github.com/QuantumNous/new-api'
+              href={NEW_API_REPOSITORY}
               target='_blank'
               rel='noopener noreferrer'
-              className='text-primary hover:underline'
+              className='text-[var(--link)] hover:underline'
             >
               {t('NewAPI')}
             </a>{' '}
@@ -72,7 +95,7 @@ function EmptyAboutState() {
               href='https://github.com/QuantumNous'
               target='_blank'
               rel='noopener noreferrer'
-              className='text-primary hover:underline'
+              className='text-[var(--link)] hover:underline'
             >
               {t('QuantumNous')}
             </a>{' '}
@@ -81,7 +104,7 @@ function EmptyAboutState() {
               href='https://github.com/songquanpeng/one-api'
               target='_blank'
               rel='noopener noreferrer'
-              className='text-primary hover:underline'
+              className='text-[var(--link)] hover:underline'
             >
               {t('One API')}
             </a>{' '}
@@ -90,26 +113,54 @@ function EmptyAboutState() {
               href='https://github.com/songquanpeng'
               target='_blank'
               rel='noopener noreferrer'
-              className='text-primary hover:underline'
+              className='text-[var(--link)] hover:underline'
             >
               {t('JustSong')}
             </a>
           </p>
-          <p className='text-muted-foreground'>
+          <p className='text-muted-foreground text-sm'>
             {t('This project must be used in compliance with the')}{' '}
             <a
-              href='https://github.com/QuantumNous/new-api/blob/main/LICENSE'
+              href={`${NEW_API_REPOSITORY}/blob/main/LICENSE`}
               target='_blank'
               rel='noopener noreferrer'
-              className='text-primary hover:underline'
+              className='text-[var(--link)] hover:underline'
             >
               {t('AGPL v3.0 License')}
             </a>
             .
           </p>
         </div>
+
+        <div className='space-y-3'>
+          <p className='text-foreground/50 text-xs tracking-[0.25em]'>
+            {t('Modifications')}
+          </p>
+          <p className='text-foreground text-lg font-light'>
+            {t('Modified on {{date}}. Main changes:', { date: MODIFIED_ON })}
+          </p>
+          <ul className='text-foreground/80 list-disc space-y-1.5 pl-5 text-sm'>
+            {changes.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className='space-y-3'>
+          <p className='text-foreground/50 text-xs tracking-[0.25em]'>
+            {t('Get the modified source code')}
+          </p>
+          <p className='text-foreground text-lg font-light'>
+            {t(
+              'Under AGPL-3.0, users of this site can obtain the modified source code.'
+            )}
+          </p>
+          <p className='text-muted-foreground text-sm'>
+            {t('Source address to be added before the site goes public.')}
+          </p>
+        </div>
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -140,8 +191,8 @@ export function About() {
 
   if (!hasContent) {
     return (
-      <PublicLayout>
-        <EmptyAboutState />
+      <PublicLayout showMainContainer={false}>
+        <LicenseSection />
       </PublicLayout>
     )
   }
@@ -155,6 +206,7 @@ export function About() {
           title={t('About')}
           sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts'
         />
+        <LicenseSection />
       </PublicLayout>
     )
   }
@@ -168,19 +220,21 @@ export function About() {
           content={rawContent}
           className='prose-neutral dark:prose-invert max-w-none'
         />
+        <LicenseSection />
       </PublicLayout>
     )
   }
 
   return (
-    <PublicLayout>
-      <div className='mx-auto max-w-6xl px-4 py-8'>
+    <PublicLayout showMainContainer={false}>
+      <div className='mx-auto max-w-6xl px-4 pt-28 pb-8'>
         <RichContent
           mode='markdown'
           content={rawContent}
           className='prose-neutral dark:prose-invert max-w-none'
         />
       </div>
+      <LicenseSection />
     </PublicLayout>
   )
 }

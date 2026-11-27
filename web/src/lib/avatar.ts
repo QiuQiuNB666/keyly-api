@@ -20,23 +20,13 @@ import type { CSSProperties } from 'react'
 
 export type UserAvatarStyle = Pick<CSSProperties, 'backgroundColor' | 'color'>
 
-function hashString(value: string): number {
-  let hash = 0
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash * 31 + value.charCodeAt(i)) >>> 0
-  }
-  return hash
-}
-
-export function getUserAvatarStyle(name: string): UserAvatarStyle {
-  const hash = hashString(name)
-  const hue = hash % 360
-  const saturation = 54 + (hash % 8)
-  const lightness = 52 + ((hash >> 4) % 8)
-
+// Keyly API: single-accent palette — avatars use the brand sky blue with
+// navy initials instead of a per-user random hue. `name` stays in the
+// signature so call sites are unchanged.
+export function getUserAvatarStyle(_name: string): UserAvatarStyle {
   return {
-    backgroundColor: `hsl(${hue} ${saturation}% ${lightness}%)`,
-    color: 'white',
+    backgroundColor: 'var(--primary)',
+    color: 'var(--primary-foreground)',
   }
 }
 

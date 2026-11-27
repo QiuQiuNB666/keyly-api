@@ -64,3 +64,6 @@ export const DEFAULT_DISCOUNT_RATE = 1.0
  * Default minimum topup amount
  */
 export const DEFAULT_MIN_TOPUP = 1
+
+// Keyly API: fallback shop for redeem codes when TopUpLink is not configured
+export const KEYLY_SHOP_URL = 'https://keylyai.com'

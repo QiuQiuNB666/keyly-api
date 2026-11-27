@@ -16,9 +16,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { Link } from '@tanstack/react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 
-import { Sidebar, SidebarContent, SidebarRail } from '@/components/ui/sidebar'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarRail,
+} from '@/components/ui/sidebar'
 import { useLayout } from '@/context/layout-provider'
 import { useSidebarView } from '@/hooks/use-sidebar-view'
 import { MOTION_TRANSITION, MOTION_VARIANTS } from '@/lib/motion'
@@ -47,6 +54,7 @@ export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { key, view, navGroups } = useSidebarView()
   const shouldReduce = useReducedMotion()
+  const { t } = useTranslation()
 
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
@@ -70,6 +78,17 @@ export function AppSidebar() {
           </motion.div>
         </AnimatePresence>
       </SidebarContent>
+
+      {/* Keyly API: AGPL §13 / NOTICE 7(b) entry point — license, attribution
+          and source offer live on /about. */}
+      <SidebarFooter className='px-4 pb-4 group-data-[collapsible=icon]:hidden'>
+        <Link
+          to='/about'
+          className='text-muted-foreground hover:text-foreground text-xs transition-colors'
+        >
+          {t('Open source license')}
+        </Link>
+      </SidebarFooter>
 
       <SidebarRail />
     </Sidebar>

@@ -65,8 +65,9 @@ export interface PublicHeaderProps {
 export function PublicHeader(props: PublicHeaderProps) {
   const {
     navLinks = defaultTopNavLinks,
-    showThemeSwitch = true,
-    showLanguageSwitcher = true,
+    // Keyly API: light-only, Chinese-first header — switches hidden by default.
+    showThemeSwitch = false,
+    showLanguageSwitcher = false,
     logo: customLogo,
     siteName: customSiteName,
     homeUrl = '/',
@@ -104,23 +105,42 @@ export function PublicHeader(props: PublicHeaderProps) {
       src={systemLogo}
       loading={loading}
       logoLoaded={logoLoaded}
-      className='size-full rounded-lg object-contain'
+      className='size-full rounded-none object-contain'
     />
   )
   if (customLogo) logoContent = customLogo
-  if (loading) logoContent = <Skeleton className='size-full rounded-lg' />
+  if (loading) logoContent = <Skeleton className='size-full rounded-md' />
 
   let authContent = (
-    <Button
-      size='sm'
-      className='h-8 rounded-lg px-3.5 text-xs font-medium'
-      render={<Link to='/sign-in' />}
-    >
-      {t('Sign in')}
-    </Button>
+    <>
+      <Link
+        to='/sign-in'
+        className='text-foreground text-sm tracking-wide transition-opacity hover:opacity-70'
+      >
+        {t('Sign in')}
+      </Link>
+      <Link
+        to='/sign-up'
+        className='bg-primary text-primary-foreground hover:bg-primary/80 rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-colors'
+      >
+        {t('Sign up free')}
+      </Link>
+    </>
   )
-  if (isAuthenticated) authContent = <ProfileDropdown />
-  if (loading) authContent = <Skeleton className='h-8 w-20 rounded-lg' />
+  if (isAuthenticated) {
+    authContent = (
+      <>
+        <Link
+          to='/dashboard'
+          className='bg-primary text-primary-foreground hover:bg-primary/80 rounded-full px-5 py-2.5 text-sm font-medium tracking-wide transition-colors'
+        >
+          {t('Console')}
+        </Link>
+        <ProfileDropdown />
+      </>
+    )
+  }
+  if (loading) authContent = <Skeleton className='h-10 w-36 rounded-full' />
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -199,155 +219,128 @@ export function PublicHeader(props: PublicHeaderProps) {
 
   return (
     <>
-      <header className='pointer-events-none fixed inset-x-0 top-0 z-50'>
-        <div
-          className={cn(
-            'pointer-events-auto mx-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            scrolled ? 'max-w-[52rem] px-3 pt-3' : 'max-w-7xl px-4 pt-0 md:px-6'
-          )}
-        >
-          <nav
-            className={cn(
-              'flex items-center justify-between gap-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
-              scrolled
-                ? 'bg-background/60 ring-border/50 h-12 rounded-2xl pr-1.5 pl-4 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-2xl dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'
-                : 'h-16 px-2'
-            )}
-          >
-            {/* Logo */}
-            <div className='@container/system-brand flex min-w-0 flex-1 items-center gap-1 lg:min-w-36'>
-              <Link
-                to={homeUrl}
-                className='group flex min-w-0 items-center gap-2.5'
-              >
-                <div className='flex size-7 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105'>
-                  {logoContent}
-                </div>
-                <span
-                  className='max-w-48 truncate text-sm font-semibold tracking-tight'
-                  title={displaySiteName}
-                >
-                  {loading ? (
-                    <Skeleton className='h-4 w-16' />
-                  ) : (
-                    displaySiteName
-                  )}
-                </span>
-              </Link>
-              <SystemUpdateAction presentation='version' />
-            </div>
-
-            {/* Desktop nav */}
-            <div className='hidden min-w-0 items-center gap-0.5 lg:flex'>
-              {links.map((link) => {
-                const isActive = pathname === link.href
-                if (link.external) {
-                  return (
-                    <a
-                      key={`${link.title}:${link.href}`}
-                      href={link.href}
-                      title={t(link.title)}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      aria-disabled={link.disabled}
-                      tabIndex={link.disabled ? -1 : undefined}
-                      onClick={(event) => handleNavLinkClick(event, link)}
-                      className={cn(
-                        'text-muted-foreground hover:text-foreground min-w-0 truncate rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-200',
-                        link.disabled && 'pointer-events-none opacity-50'
-                      )}
-                    >
-                      {t(link.title)}
-                    </a>
-                  )
-                }
+      {/* Keyly API: MotionSites "Palomar Labs" nav — links left, logo centered,
+          text sign-in + sky pill right; transparent, frosted white on scroll. */}
+      <header
+        className={cn(
+          'fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300',
+          scrolled &&
+            'bg-background/90 shadow-[0_1px_2px_rgba(0,0,0,0.05)] backdrop-blur-md'
+        )}
+      >
+        <nav className='relative mx-auto flex h-20 max-w-7xl items-center px-4 md:px-8'>
+          {/* Desktop nav (left) */}
+          <div className='keyly-down hidden min-w-0 items-center gap-8 lg:flex'>
+            {links.map((link) => {
+              const isActive = pathname === link.href
+              const linkClassName = cn(
+                'text-foreground min-w-0 truncate text-sm tracking-wide transition-opacity duration-200 hover:opacity-70',
+                isActive && 'font-medium',
+                link.disabled && 'pointer-events-none opacity-50'
+              )
+              if (link.external) {
                 return (
-                  <Link
+                  <a
                     key={`${link.title}:${link.href}`}
-                    to={link.href}
+                    href={link.href}
                     title={t(link.title)}
-                    disabled={link.disabled}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    aria-disabled={link.disabled}
+                    tabIndex={link.disabled ? -1 : undefined}
                     onClick={(event) => handleNavLinkClick(event, link)}
-                    className={cn(
-                      'min-w-0 truncate rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-200',
-                      isActive
-                        ? 'text-foreground'
-                        : 'text-muted-foreground hover:text-foreground',
-                      link.disabled && 'pointer-events-none opacity-50'
-                    )}
+                    className={linkClassName}
                   >
                     {t(link.title)}
-                  </Link>
+                  </a>
                 )
-              })}
+              }
+              return (
+                <Link
+                  key={`${link.title}:${link.href}`}
+                  to={link.href}
+                  title={t(link.title)}
+                  disabled={link.disabled}
+                  onClick={(event) => handleNavLinkClick(event, link)}
+                  className={linkClassName}
+                >
+                  {t(link.title)}
+                </Link>
+              )
+            })}
+          </div>
 
-              {(showLanguageSwitcher ||
-                showThemeSwitch ||
-                showNotifications) && (
-                <div className='bg-border/40 mx-2 h-4 w-px' />
-              )}
-
-              {showLanguageSwitcher && <LanguageSwitcher />}
-              {showThemeSwitch && <ThemeSwitch />}
-              {showNotifications && (
-                <NotificationPopover
-                  open={notifications.popoverOpen}
-                  onOpenChange={notifications.setPopoverOpen}
-                  unreadCount={notifications.unreadCount}
-                  activeTab={notifications.activeTab}
-                  onTabChange={notifications.setActiveTab}
-                  notice={notifications.notice}
-                  announcements={notifications.announcements}
-                  loading={notifications.loading}
-                />
-              )}
-
-              {showAuthButtons && (
-                <>
-                  <div className='bg-border/40 mx-1 h-4 w-px' />
-                  {authContent}
-                </>
-              )}
-            </div>
-
-            {/* Mobile: compact actions + hamburger */}
-            <div className='flex shrink-0 items-center gap-2 lg:hidden'>
-              {showThemeSwitch && <ThemeSwitch />}
-              {showAuthButtons && !loading && isAuthenticated && (
-                <ProfileDropdown />
-              )}
-              <Button
-                type='button'
-                variant='ghost'
-                size='icon'
-                className='size-9'
-                onClick={() => setMobileOpen((v) => !v)}
-                aria-label={t('Toggle navigation menu')}
+          {/* Logo (centered) */}
+          <div className='keyly-down absolute left-1/2 flex -translate-x-1/2 items-center gap-1 [animation-delay:120ms]'>
+            <Link to={homeUrl} className='flex min-w-0 items-center gap-2'>
+              <div className='flex size-5 shrink-0 items-center justify-center'>
+                {logoContent}
+              </div>
+              <span
+                className='text-foreground max-w-48 truncate text-xl font-normal tracking-tight'
+                title={displaySiteName}
               >
-                <div className='relative size-4'>
-                  <span
-                    className={cn(
-                      'absolute inset-x-0 block h-[1.5px] origin-center rounded-full bg-current transition-all duration-300',
-                      mobileOpen ? 'top-[7px] rotate-45' : 'top-[3px]'
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      'absolute inset-x-0 top-[7px] block h-[1.5px] rounded-full bg-current transition-all duration-300',
-                      mobileOpen ? 'scale-x-0 opacity-0' : 'opacity-100'
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      'absolute inset-x-0 block h-[1.5px] origin-center rounded-full bg-current transition-all duration-300',
-                      mobileOpen ? 'top-[7px] -rotate-45' : 'top-[11px]'
-                    )}
-                  />
-                </div>
-              </Button>
-            </div>
-          </nav>
-        </div>
+                {loading ? <Skeleton className='h-5 w-24' /> : displaySiteName}
+              </span>
+            </Link>
+            <SystemUpdateAction presentation='version' />
+          </div>
+
+          {/* Right: optional switches + auth */}
+          <div className='keyly-down ml-auto hidden items-center gap-5 [animation-delay:240ms] lg:flex'>
+            {showLanguageSwitcher && <LanguageSwitcher />}
+            {showThemeSwitch && <ThemeSwitch />}
+            {showNotifications && isAuthenticated && (
+              <NotificationPopover
+                open={notifications.popoverOpen}
+                onOpenChange={notifications.setPopoverOpen}
+                unreadCount={notifications.unreadCount}
+                activeTab={notifications.activeTab}
+                onTabChange={notifications.setActiveTab}
+                notice={notifications.notice}
+                announcements={notifications.announcements}
+                loading={notifications.loading}
+              />
+            )}
+            {showAuthButtons && authContent}
+          </div>
+
+          {/* Mobile: hamburger */}
+          <div className='ml-auto flex shrink-0 items-center gap-2 lg:hidden'>
+            {showAuthButtons && !loading && isAuthenticated && (
+              <ProfileDropdown />
+            )}
+            <Button
+              type='button'
+              variant='ghost'
+              size='icon'
+              className='size-9'
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={t('Toggle navigation menu')}
+            >
+              <div className='relative size-4'>
+                <span
+                  className={cn(
+                    'absolute inset-x-0 block h-[1.5px] origin-center rounded-full bg-current transition-all duration-300',
+                    mobileOpen ? 'top-[7px] rotate-45' : 'top-[3px]'
+                  )}
+                />
+                <span
+                  className={cn(
+                    'absolute inset-x-0 top-[7px] block h-[1.5px] rounded-full bg-current transition-all duration-300',
+                    mobileOpen ? 'scale-x-0 opacity-0' : 'opacity-100'
+                  )}
+                />
+                <span
+                  className={cn(
+                    'absolute inset-x-0 block h-[1.5px] origin-center rounded-full bg-current transition-all duration-300',
+                    mobileOpen ? 'top-[7px] -rotate-45' : 'top-[11px]'
+                  )}
+                />
+              </div>
+            </Button>
+          </div>
+        </nav>
       </header>
 
       {/* Mobile full-screen overlay */}
@@ -419,7 +412,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               <Link
                 to={isAuthenticated ? '/dashboard' : '/sign-in'}
                 onClick={() => setMobileOpen(false)}
-                className='bg-foreground text-background inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80'
+                className='bg-primary text-primary-foreground inline-flex h-11 items-center justify-center rounded-full text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80'
               >
                 {isAuthenticated ? t('Go to Dashboard') : t('Sign in')}
               </Link>

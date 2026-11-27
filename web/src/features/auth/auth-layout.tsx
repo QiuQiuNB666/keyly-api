@@ -30,31 +30,37 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   const { t } = useTranslation()
   const { systemName, logo, loading } = useSystemConfig()
 
+  // Keyly API: same bar as the public header (logo centered, h-20), light
+  // form column with pill inputs / submit buttons.
   return (
-    <div className='relative grid h-svh max-w-none'>
-      <Link
-        to='/'
-        className='absolute top-4 left-4 z-10 flex items-center gap-2 transition-opacity hover:opacity-80 sm:top-8 sm:left-8'
-      >
-        <div className='relative h-8 w-8'>
+    <div className='bg-background relative grid min-h-svh max-w-none'>
+      <header className='absolute inset-x-0 top-0 z-10 flex h-20 items-center justify-center'>
+        <Link
+          to='/'
+          className='keyly-down flex items-center gap-2 transition-opacity hover:opacity-70'
+        >
+          <div className='relative size-5'>
+            {loading ? (
+              <Skeleton className='absolute inset-0 rounded-md' />
+            ) : (
+              <img
+                src={logo}
+                alt={t('Logo')}
+                className='size-5 object-contain'
+              />
+            )}
+          </div>
           {loading ? (
-            <Skeleton className='absolute inset-0 rounded-full' />
+            <Skeleton className='h-6 w-24' />
           ) : (
-            <img
-              src={logo}
-              alt={t('Logo')}
-              className='h-8 w-8 rounded-full object-cover'
-            />
+            <span className='text-foreground text-xl font-normal tracking-tight'>
+              {systemName}
+            </span>
           )}
-        </div>
-        {loading ? (
-          <Skeleton className='h-6 w-24' />
-        ) : (
-          <h1 className='text-xl font-medium'>{systemName}</h1>
-        )}
-      </Link>
-      <div className='container flex items-center pt-16 sm:pt-0'>
-        <div className='mx-auto flex w-full flex-col justify-center space-y-2 px-4 py-8 sm:w-[480px] sm:p-8'>
+        </Link>
+      </header>
+      <div className='container flex items-center pt-20'>
+        <div className='keyly-up mx-auto flex w-full flex-col justify-center space-y-2 px-4 py-8 [animation-delay:240ms] sm:w-[440px] sm:p-8 [&_button[type=submit]]:h-11 [&_button[type=submit]]:rounded-full [&_input:not([type=checkbox])]:h-11 [&_input:not([type=checkbox])]:rounded-full [&_input:not([type=checkbox])]:px-5'>
           {children}
         </div>
       </div>

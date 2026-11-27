@@ -26,17 +26,19 @@ const iconBadgeVariants = cva(
   {
     variants: {
       tone: {
-        neutral: 'bg-muted text-muted-foreground',
-        primary: 'bg-primary/10 text-primary',
-        success: 'bg-success/10 text-success',
-        warning: 'bg-warning/10 text-warning',
-        info: 'bg-info/10 text-info',
+        // Keyly API: one accent only — every decorative tone renders as the
+        // same quiet grey badge; only destructive keeps its warning color.
+        neutral: 'bg-muted text-foreground/70',
+        primary: 'bg-muted text-foreground/70',
+        success: 'bg-muted text-foreground/70',
+        warning: 'bg-muted text-foreground/70',
+        info: 'bg-muted text-foreground/70',
         destructive: 'bg-destructive/10 text-destructive',
-        'chart-1': 'bg-chart-1/10 text-chart-1',
-        'chart-2': 'bg-chart-2/10 text-chart-2',
-        'chart-3': 'bg-chart-3/10 text-chart-3',
-        'chart-4': 'bg-chart-4/10 text-chart-4',
-        'chart-5': 'bg-chart-5/10 text-chart-5',
+        'chart-1': 'bg-muted text-foreground/70',
+        'chart-2': 'bg-muted text-foreground/70',
+        'chart-3': 'bg-muted text-foreground/70',
+        'chart-4': 'bg-muted text-foreground/70',
+        'chart-5': 'bg-muted text-foreground/70',
       },
       size: {
         xs: 'size-5 rounded-md [&>svg]:size-3',
