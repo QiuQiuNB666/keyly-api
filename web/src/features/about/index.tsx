@@ -156,7 +156,15 @@ function LicenseSection() {
             )}
           </p>
           <p className='text-muted-foreground text-sm'>
-            {t('Source address to be added before the site goes public.')}
+            {t('Modified source code:')}{' '}
+            <a
+              href='https://github.com/QiuQiuNB666/keyly-api'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-[var(--link)] hover:underline'
+            >
+              https://github.com/QiuQiuNB666/keyly-api
+            </a>
           </p>
         </div>
       </div>
