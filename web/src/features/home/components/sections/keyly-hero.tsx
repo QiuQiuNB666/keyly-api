@@ -36,16 +36,21 @@ export function KeylyHero() {
   ]
 
   return (
-    <section className='bg-background relative min-h-[max(700px,100svh)] w-full overflow-hidden'>
-      <video
-        className='absolute inset-0 size-full object-cover object-bottom'
-        src={KEYLY_HERO_VIDEO_URL}
-        autoPlay
-        muted
-        loop
-        playsInline
-        aria-hidden='true'
-      />
+    // Keyly API (P1): on phones the text sits on top and the video takes the
+    // lower part of the first screen (soft top edge, solid backdrop matched to
+    // the video's light grey), so the cube never sits under the text.
+    <section className='md:bg-background relative min-h-[max(700px,100svh)] w-full overflow-hidden bg-[#e4e4e9]'>
+      <div className='absolute inset-x-0 bottom-0 h-[42%] [mask-image:linear-gradient(to_bottom,transparent,black_30%)] md:inset-0 md:h-full md:[mask-image:none]'>
+        <video
+          className='size-full object-cover object-center md:object-bottom'
+          src={KEYLY_HERO_VIDEO_URL}
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden='true'
+        />
+      </div>
       <div className='relative z-10 mx-auto flex max-w-7xl flex-col items-start px-4 pt-32 pb-16 md:px-8 md:pt-36'>
         <a
           href={KEYLY_SHOP_URL}
@@ -56,7 +61,7 @@ export function KeylyHero() {
           <span>{t('Redeem codes are sold on Keyly, credited instantly')}</span>
           <ArrowRight className='size-3.5 shrink-0' aria-hidden='true' />
         </a>
-        <h1 className='keyly-up text-foreground max-w-4xl text-4xl leading-[1.12] font-light tracking-[-0.03em] [animation-delay:360ms] md:text-6xl'>
+        <h1 className='keyly-up text-foreground max-w-4xl text-[2rem] leading-[1.15] font-light tracking-[-0.03em] break-keep [animation-delay:360ms] sm:text-4xl md:text-6xl'>
           {t('One key for multiple mainstream models,')}
           <br className='hidden md:block' />
           {t('pay as you go, top up with redeem codes')}
@@ -65,11 +70,11 @@ export function KeylyHero() {
           <p className='text-foreground/50 mb-8 text-xs tracking-[0.25em]'>
             {t('API capabilities')}
           </p>
-          <div className='keyly-up flex max-w-160 flex-wrap items-center gap-x-10 gap-y-4 [animation-delay:600ms]'>
+          <div className='keyly-up flex max-w-160 flex-wrap items-center gap-x-6 gap-y-3 [animation-delay:600ms] sm:gap-x-10 sm:gap-y-4'>
             {capabilities.map((item) => (
               <span
                 key={item}
-                className='text-foreground/80 text-[1.375rem] font-light tracking-[-0.02em] whitespace-nowrap'
+                className='text-foreground/80 text-lg font-light tracking-[-0.02em] whitespace-nowrap sm:text-[1.375rem]'
               >
                 {item}
               </span>

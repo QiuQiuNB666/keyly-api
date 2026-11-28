@@ -46,9 +46,8 @@ export function useRedemption() {
       if (response.success && response.data) {
         const quotaAdded = response.data
         toast.success(
-          i18next.t('Redemption successful! Added: {{quota}}', {
-            quota: formatQuota(quotaAdded),
-          })
+          // Keyly API: plain 到账 wording
+          i18next.t('redeem.credited', { quota: formatQuota(quotaAdded) })
         )
         await getSelf()
         return true

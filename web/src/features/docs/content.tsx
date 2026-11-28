@@ -41,6 +41,10 @@ import {
 // - keys are always shown masked
 
 export type DocContext = {
+  /** Masked key shown in code samples (the user's own when signed in). */
+  keyDisplay: string
+  /** Trailing shell comment for the key line. */
+  keyComment: string
   /** Site origin, e.g. https://example.com */
   origin: string
   /** Base URL most OpenAI-compatible clients want: origin + /v1 */
@@ -55,7 +59,7 @@ export type DocPage = {
   render: (ctx: DocContext) => ReactNode
 }
 
-const MASKED_KEY = 'sk-xxxx…xxxx'
+export const MASKED_KEY = 'sk-xxxx…xxxx'
 const MODEL_NOTE = '以控制台模型列表为准'
 const NOT_YET = '接入渠道后可验证'
 const TESTED_ON =
@@ -241,7 +245,7 @@ const curl: DocPage = {
       />
       <CodeBlock
         label='macOS / Linux'
-        code={`export KEYLY_API_KEY="${MASKED_KEY}"   # 换成你自己的 Key`}
+        code={`export KEYLY_API_KEY="${ctx.keyDisplay}"   # ${ctx.keyComment}`}
       />
 
       <DocH2 id='configure'>配置：先查模型列表</DocH2>
@@ -333,7 +337,7 @@ source .venv/bin/activate
 pip install openai
 
 export KEYLY_BASE_URL="${ctx.base}"
-export KEYLY_API_KEY="${MASKED_KEY}"   # 换成你自己的 Key`}
+export KEYLY_API_KEY="${ctx.keyDisplay}"   # ${ctx.keyComment}`}
       />
 
       <DocH2 id='configure'>配置</DocH2>
@@ -426,7 +430,7 @@ npm init -y
 npm i openai
 
 export KEYLY_BASE_URL="${ctx.base}"
-export KEYLY_API_KEY="${MASKED_KEY}"   # 换成你自己的 Key`}
+export KEYLY_API_KEY="${ctx.keyDisplay}"   # ${ctx.keyComment}`}
       />
 
       <DocH2 id='configure'>配置</DocH2>

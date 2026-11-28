@@ -42,7 +42,7 @@ function PanelHeader(props: {
 }) {
   const heading = (
     <div className='flex flex-col gap-1'>
-      <div className='text-sm font-semibold'>{props.title}</div>
+      <div className='text-sm font-medium'>{props.title}</div>
       {props.description != null && (
         <div className='text-muted-foreground text-xs'>{props.description}</div>
       )}

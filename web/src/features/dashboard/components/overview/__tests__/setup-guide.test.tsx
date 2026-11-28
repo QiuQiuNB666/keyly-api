@@ -33,7 +33,8 @@ import { useSystemConfigStore } from '@/stores/system-config-store'
 
 import { OverviewDashboard } from '../overview-dashboard'
 
-const storageKey = 'dashboard_overview_setup_guide_expanded'
+// Keyly API: the show/hide choice is stored per user (user id 1 here).
+const storageKey = 'dashboard_overview_setup_guide_expanded:1'
 let client: QueryClient
 let keyLookupError: Error | null
 
@@ -114,7 +115,7 @@ describe('overview setup guide', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
     expect(
       screen.getAllByRole('heading').map((heading) => heading.textContent)
-    ).toEqual(['Overview', 'Usage at a glance'])
+    ).toEqual(['Overview', 'tryCall.title', 'Usage at a glance'])
     expect(screen.queryByText('Setup guide complete')).not.toBeInTheDocument()
     expect(screen.queryByText('Setup progress: 3/3')).not.toBeInTheDocument()
     for (const name of ['API Keys', 'Channels', 'Usage Logs', 'Pricing']) {

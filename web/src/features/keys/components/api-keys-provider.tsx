@@ -41,6 +41,9 @@ type ApiKeysContextType = {
   loadingKeys: Record<number, boolean>
   copiedKeyId: number | null
   markKeyCopied: (id: number) => void
+  /** Keyly API: full key shown once right after creation; cleared on close. */
+  createdKey: string
+  setCreatedKey: React.Dispatch<React.SetStateAction<string>>
 }
 
 const ApiKeysContext = React.createContext<ApiKeysContextType | null>(null)
@@ -51,6 +54,7 @@ export function ApiKeysProvider({ children }: { children: React.ReactNode }) {
   const [currentRow, setCurrentRow] = useState<ApiKey | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [resolvedKey, setResolvedKey] = useState('')
+  const [createdKey, setCreatedKey] = useState('')
 
   const [resolvedKeys, setResolvedKeys] = useState<Record<number, string>>({})
   const [loadingKeys, setLoadingKeys] = useState<Record<number, boolean>>({})
@@ -171,6 +175,8 @@ export function ApiKeysProvider({ children }: { children: React.ReactNode }) {
         loadingKeys,
         copiedKeyId,
         markKeyCopied,
+        createdKey,
+        setCreatedKey,
       }}
     >
       {children}

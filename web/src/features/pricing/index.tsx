@@ -167,7 +167,7 @@ export function Pricing() {
             <h1 className='text-foreground text-4xl leading-[1.12] font-light tracking-[-0.03em] md:text-6xl'>
               {t('Model Square')}
             </h1>
-            <p className='text-foreground/50 mt-6 text-xs tracking-[0.25em]'>
+            <p className='text-muted-foreground mt-6 text-sm'>
               {t('This site currently has {{count}} models enabled', {
                 count: models?.length || 0,
               })}

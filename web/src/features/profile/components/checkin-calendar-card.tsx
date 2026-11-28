@@ -300,7 +300,7 @@ export function CheckinCalendarCard({
               </IconBadge>
               <div className='min-w-0 flex-1'>
                 <div className='flex flex-wrap items-center gap-1.5 sm:gap-2'>
-                  <h3 className='text-base font-semibold tracking-tight sm:text-lg'>
+                  <h3 className='text-sm font-medium tracking-tight sm:text-base'>
                     {t('Daily Check-in')}
                   </h3>
                   {checkedToday && (

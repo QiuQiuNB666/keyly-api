@@ -75,6 +75,8 @@ import { cn } from '@/lib/utils'
 
 import {
   createApiKey,
+  fetchTokenKey,
+  getApiKeys,
   updateApiKey,
   getApiKey,
   getTokenAutoGroups,
@@ -101,6 +103,23 @@ type ApiKeyMutateDrawerProps = {
   currentRow?: ApiKey
 }
 
+async function readBackCreatedKey(name?: string): Promise<string | null> {
+  try {
+    const list = await getApiKeys({ p: 1, size: 20 })
+    const items = list.success ? (list.data?.items ?? []) : []
+    const newest = items
+      .filter((item) => !name || item.name === name)
+      .sort((a, b) => b.id - a.id)[0]
+    if (!newest) return null
+    const res = await fetchTokenKey(newest.id)
+    const key = res.success ? res.data?.key : undefined
+    if (!key) return null
+    return key.startsWith('sk-') ? key : `sk-${key}`
+  } catch {
+    return null
+  }
+}
+
 export function ApiKeysMutateDrawer({
   open,
   onOpenChange,
@@ -109,7 +128,7 @@ export function ApiKeysMutateDrawer({
   const { t } = useTranslation()
   const isUpdate = !!currentRow
   const currentRowId = currentRow?.id
-  const { triggerRefresh } = useApiKeys()
+  const { triggerRefresh, setOpen: setDialog, setCreatedKey } = useApiKeys()
   const { status, loading: statusLoading } = useStatus()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [advancedOpen, setAdvancedOpen] = useState(false)
@@ -326,13 +345,25 @@ export function ApiKeysMutateDrawer({
         }
 
         if (successCount > 0) {
-          toast.success(
-            t('Successfully created {{count}} API Key(s)', {
-              count: successCount,
-            })
-          )
-          onOpenChange(false)
           triggerRefresh()
+          // Keyly API: a single new key is shown once in a success dialog.
+          // The create endpoint returns no id, so read the newest matching
+          // key back through the existing list + reveal APIs.
+          const fullKey =
+            count === 1
+              ? await readBackCreatedKey(data.name || undefined)
+              : null
+          if (fullKey) {
+            setCreatedKey(fullKey)
+            setDialog('created')
+          } else {
+            toast.success(
+              t('Successfully created {{count}} API Key(s)', {
+                count: successCount,
+              })
+            )
+            onOpenChange(false)
+          }
         }
       }
     } catch (error) {

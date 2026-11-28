@@ -29,6 +29,7 @@ import { BillingHistoryDialog } from './components/dialogs/billing-history-dialo
 import { CreemConfirmDialog } from './components/dialogs/creem-confirm-dialog'
 import { PaymentConfirmDialog } from './components/dialogs/payment-confirm-dialog'
 import { TransferDialog } from './components/dialogs/transfer-dialog'
+import { RecentActivity } from './components/recent-activity'
 import { RechargeFormCard } from './components/recharge-form-card'
 import { SubscriptionPlansCard } from './components/subscription-plans-card'
 import { WalletHero } from './components/wallet-hero'
@@ -296,17 +297,33 @@ export function Wallet(props: WalletProps) {
         <SectionPageLayout.Title>{t('Wallet')}</SectionPageLayout.Title>
         <SectionPageLayout.Content>
           <div className='mx-auto flex w-full max-w-7xl flex-col gap-4 sm:gap-5'>
-            {/* Keyly API: balance + redeem first; online payment only when configured */}
-            <WalletHero
-              user={user}
-              loading={userLoading}
-              redemptionEnabled={topupInfo?.enable_redemption !== false}
-              redemptionCode={redemptionCode}
-              onRedemptionCodeChange={setRedemptionCode}
-              onRedeem={handleRedeem}
-              redeeming={redeeming}
-              topupLink={topupInfo?.topup_link}
-            />
+            {/* Keyly API (P3): two columns on desktop — balance, redeem and
+                referral on the left; recent top-ups and usage on the right. */}
+            <div className='grid items-stretch gap-6 lg:grid-cols-2'>
+              <div className='flex min-w-0 flex-col gap-6'>
+                {/* Keyly API: balance + redeem first; online payment only when configured */}
+                <WalletHero
+                  user={user}
+                  loading={userLoading}
+                  redemptionEnabled={topupInfo?.enable_redemption !== false}
+                  redemptionCode={redemptionCode}
+                  onRedemptionCodeChange={setRedemptionCode}
+                  onRedeem={handleRedeem}
+                  redeeming={redeeming}
+                  topupLink={topupInfo?.topup_link}
+                />
+                <AffiliateRewardsCard
+                  user={user}
+                  affiliateLink={affiliateLink}
+                  onTransfer={() => setTransferDialogOpen(true)}
+                  complianceConfirmed={
+                    topupInfo?.payment_compliance_confirmed !== false
+                  }
+                  loading={affiliateLoading}
+                />
+              </div>
+              <RecentActivity topupLink={topupInfo?.topup_link} />
+            </div>
 
             <div
               className={
@@ -359,16 +376,6 @@ export function Wallet(props: WalletProps) {
                 onPurchaseSuccess={fetchUser}
               />
             </div>
-
-            <AffiliateRewardsCard
-              user={user}
-              affiliateLink={affiliateLink}
-              onTransfer={() => setTransferDialogOpen(true)}
-              complianceConfirmed={
-                topupInfo?.payment_compliance_confirmed !== false
-              }
-              loading={affiliateLoading}
-            />
           </div>
         </SectionPageLayout.Content>
       </SectionPageLayout>

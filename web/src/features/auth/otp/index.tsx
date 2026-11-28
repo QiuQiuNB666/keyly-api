@@ -42,7 +42,6 @@ export function Otp() {
             >
               {t('Re-login')}
             </Link>
-            .
           </p>
         </div>
 

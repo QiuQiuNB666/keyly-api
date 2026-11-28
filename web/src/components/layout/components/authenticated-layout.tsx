@@ -23,11 +23,14 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { LayoutProvider } from '@/context/layout-provider'
 import { SearchProvider } from '@/context/search-provider'
 import { getCookie } from '@/lib/cookies'
+import { ROLE } from '@/lib/roles'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 
 import { AppHeader } from './app-header'
 import { AppSidebar } from './app-sidebar'
+import { BalanceAlertBanner } from './balance-alert-banner'
+import { MobileBottomNav } from './mobile-bottom-nav'
 
 type AuthenticatedLayoutProps = {
   children?: React.ReactNode
@@ -36,6 +39,7 @@ type AuthenticatedLayoutProps = {
 export function AuthenticatedLayout(props: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false'
   const signedIn = useAuthStore((s) => !!s.auth.user)
+  const isBuyer = useAuthStore((s) => (s.auth.user?.role ?? 0) < ROLE.ADMIN)
   // Unmount pages on sign-out, otherwise their queries refetch and toast "Session expired!" / "invalid access token"
   if (!signedIn) return null
 
@@ -52,13 +56,17 @@ export function AuthenticatedLayout(props: AuthenticatedLayoutProps) {
                 '@container/content',
                 'h-[calc(100svh-var(--app-header-height,0px))]',
                 'min-h-0 overflow-hidden',
+                // Keyly API: room for the buyer bottom tab bar on phones
+                isBuyer && 'pb-14 md:pb-0',
                 'peer-data-[variant=inset]:h-[calc(100svh-var(--app-header-height,0px)-(var(--spacing)*4))]'
               )}
             >
+              <BalanceAlertBanner />
               {props.children ?? <AnimatedOutlet />}
             </SidebarInset>
           </div>
         </SidebarProvider>
+        {isBuyer && <MobileBottomNav />}
         <CommandMenu />
       </SearchProvider>
     </LayoutProvider>

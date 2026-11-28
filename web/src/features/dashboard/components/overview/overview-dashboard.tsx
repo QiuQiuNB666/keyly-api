@@ -68,6 +68,7 @@ import { ApiInfoPanel } from './api-info-panel'
 import { FAQPanel } from './faq-panel'
 import { PerformanceHealthPanel } from './performance-health-panel'
 import { SummaryCards } from './summary-cards'
+import { TryCallPanel } from './try-call-panel'
 import { UptimePanel } from './uptime-panel'
 
 const SETUP_GUIDE_VISIBILITY_STORAGE_KEY =
@@ -80,6 +81,7 @@ type DashboardActionPath =
   | '/channels'
   | '/usage-logs'
   | '/pricing'
+  | '/docs'
 
 interface StartStep {
   title: string
@@ -113,18 +115,23 @@ interface HeroSignal {
   tone: IconBadgeTone
 }
 
-function getSavedSetupGuideExpanded(): boolean | null {
+// Keyly API: the dismissal is remembered per user, not per browser.
+function setupGuideStorageKey(userId?: number): string {
+  return `${SETUP_GUIDE_VISIBILITY_STORAGE_KEY}:${userId ?? 'anon'}`
+}
+
+function getSavedSetupGuideExpanded(userId?: number): boolean | null {
   if (typeof window === 'undefined') return null
-  const saved = window.localStorage.getItem(SETUP_GUIDE_VISIBILITY_STORAGE_KEY)
+  const saved = window.localStorage.getItem(setupGuideStorageKey(userId))
   if (saved === 'expanded') return true
   if (saved === 'collapsed') return false
   return null
 }
 
-function saveSetupGuideExpanded(expanded: boolean): void {
+function saveSetupGuideExpanded(expanded: boolean, userId?: number): void {
   if (typeof window === 'undefined') return
   window.localStorage.setItem(
-    SETUP_GUIDE_VISIBILITY_STORAGE_KEY,
+    setupGuideStorageKey(userId),
     expanded ? 'expanded' : 'collapsed'
   )
 }
@@ -435,11 +442,10 @@ export function OverviewDashboard() {
   } = useDashboardContentVisibility()
   const [manualSetupGuideExpanded, setManualSetupGuideExpanded] = useState<
     boolean | null
-  >(() => getSavedSetupGuideExpanded())
+  >(() => getSavedSetupGuideExpanded(user?.id))
 
   const requestCount = Number(user?.request_count ?? 0)
   const remainQuota = Number(user?.quota ?? 0)
-  const usedQuota = Number(user?.used_quota ?? 0)
   const isAdmin = Boolean(user?.role && user.role >= ROLE.ADMIN)
 
   const apiKeysQuery = useQuery({
@@ -465,8 +471,18 @@ export function OverviewDashboard() {
     [apiKeysQuery.data]
   )
 
+  // Keyly API onboarding: 兑换充值 → 创建 Key → 复制示例跑一次, each checked
+  // from real state (balance > 0, ≥1 key, ≥1 successful request — new-api only
+  // increments request_count for requests that went through and were billed).
   const startSteps = useMemo<StartStep[]>(
     () => [
+      {
+        title: t('onboarding.redeem.title'),
+        description: t('onboarding.redeem.description'),
+        to: '/wallet',
+        icon: CreditCard,
+        completed: remainQuota > 0,
+      },
       {
         title: t('Create API Key'),
         description: t('Create a key for your app or service'),
@@ -475,21 +491,14 @@ export function OverviewDashboard() {
         completed: Boolean(preferredKey),
       },
       {
-        title: t('Add credits'),
-        description: t('Keep enough balance before production traffic'),
-        to: '/wallet',
-        icon: CreditCard,
-        completed: remainQuota > 0 || usedQuota > 0,
-      },
-      {
-        title: t('Send a request'),
-        description: t('Verify routing with Playground or your client'),
-        to: '/playground',
+        title: t('onboarding.run.title'),
+        description: t('onboarding.run.description'),
+        to: '/docs',
         icon: TerminalSquare,
         completed: requestCount > 0,
       },
     ],
-    [preferredKey, remainQuota, requestCount, t, usedQuota]
+    [preferredKey, remainQuota, requestCount, t]
   )
 
   const quickActions = useMemo<QuickAction[]>(
@@ -582,7 +591,7 @@ export function OverviewDashboard() {
   const handleSetupGuideToggle = () => {
     const nextExpanded = !setupGuideExpanded
     setManualSetupGuideExpanded(nextExpanded)
-    saveSetupGuideExpanded(nextExpanded)
+    saveSetupGuideExpanded(nextExpanded, user?.id)
     if (!nextExpanded && setupComplete) {
       setupGuideToggleRef.current?.focus()
     }
@@ -625,7 +634,7 @@ export function OverviewDashboard() {
                               />
                               {t('Get started')}
                             </div>
-                            <h3 className='text-xl font-semibold tracking-tight sm:text-2xl'>
+                            <h3 className='text-lg font-medium tracking-tight sm:text-xl'>
                               {t('Build on your API gateway in minutes')}
                             </h3>
                             <p className='text-muted-foreground max-w-xl text-sm leading-relaxed'>
@@ -678,7 +687,7 @@ export function OverviewDashboard() {
                       <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
                         {t('Recommended actions')}
                       </div>
-                      <h3 className='text-lg font-semibold tracking-tight'>
+                      <h3 className='text-base font-medium tracking-tight'>
                         {t('Keep the platform ready')}
                       </h3>
                     </div>
@@ -748,6 +757,7 @@ export function OverviewDashboard() {
             </CardStaggerContainer>
           )}
 
+          <TryCallPanel />
           <SummaryCards />
 
           {showContentPanels && (

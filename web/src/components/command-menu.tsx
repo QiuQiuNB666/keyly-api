@@ -17,7 +17,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowRight, ChevronRight, Laptop, Moon, Sun } from 'lucide-react'
+import {
+  ArrowRight,
+  BookOpen,
+  ChevronRight,
+  Laptop,
+  Moon,
+  Sun,
+} from 'lucide-react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -33,7 +40,10 @@ import {
 } from '@/components/ui/command'
 import { useSearch } from '@/context/search-provider'
 import { useTheme } from '@/context/theme-provider'
+import { DOC_PAGES } from '@/features/docs/content'
 import { useSidebarView } from '@/hooks/use-sidebar-view'
+import { ROLE } from '@/lib/roles'
+import { useAuthStore } from '@/stores/auth-store'
 
 import { ScrollArea } from './ui/scroll-area'
 
@@ -45,6 +55,7 @@ export function CommandMenu() {
   // Offer the same pages as the sidebar, so search never lists pages the
   // user's role or the sidebar settings hide.
   const { navGroups } = useSidebarView()
+  const isAdmin = useAuthStore((s) => (s.auth.user?.role ?? 0) >= ROLE.ADMIN)
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {
@@ -98,22 +109,51 @@ export function CommandMenu() {
                 })}
               </CommandGroup>
             ))}
-            <CommandSeparator />
-            <CommandGroup heading='Theme'>
-              <CommandItem onSelect={() => runCommand(() => setTheme('light'))}>
-                <Sun /> <span>{t('Light')}</span>
-              </CommandItem>
-              <CommandItem onSelect={() => runCommand(() => setTheme('dark'))}>
-                <Moon className='scale-90' />
-                <span>{t('Dark')}</span>
-              </CommandItem>
-              <CommandItem
-                onSelect={() => runCommand(() => setTheme('system'))}
-              >
-                <Laptop />
-                <span>{t('System')}</span>
-              </CommandItem>
+            {/* Keyly API: ⌘K also searches the docs (title + summary). */}
+            <CommandGroup heading={t('Docs')}>
+              {DOC_PAGES.map((doc) => (
+                <CommandItem
+                  key={doc.slug}
+                  value={`${doc.title} ${doc.summary} docs ${doc.slug}`}
+                  onSelect={() =>
+                    runCommand(() =>
+                      navigate({
+                        to: '/docs/$slug',
+                        params: { slug: doc.slug },
+                      })
+                    )
+                  }
+                >
+                  <BookOpen />
+                  <span>{doc.title}</span>
+                  <span className='text-muted-foreground ml-auto truncate text-xs'>
+                    {doc.summary}
+                  </span>
+                </CommandItem>
+              ))}
             </CommandGroup>
+            {isAdmin && <CommandSeparator />}
+            {isAdmin && (
+              <CommandGroup heading='Theme'>
+                <CommandItem
+                  onSelect={() => runCommand(() => setTheme('light'))}
+                >
+                  <Sun /> <span>{t('Light')}</span>
+                </CommandItem>
+                <CommandItem
+                  onSelect={() => runCommand(() => setTheme('dark'))}
+                >
+                  <Moon className='scale-90' />
+                  <span>{t('Dark')}</span>
+                </CommandItem>
+                <CommandItem
+                  onSelect={() => runCommand(() => setTheme('system'))}
+                >
+                  <Laptop />
+                  <span>{t('System')}</span>
+                </CommandItem>
+              </CommandGroup>
+            )}
           </ScrollArea>
         </CommandList>
       </Command>

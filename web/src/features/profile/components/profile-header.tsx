@@ -129,7 +129,7 @@ export function ProfileHeader({ profile, loading }: ProfileHeaderProps) {
 
           <div className='min-w-0 flex-1 space-y-1.5 sm:space-y-3'>
             <div className='flex min-w-0 items-center gap-2'>
-              <h1 className='truncate text-xl font-semibold tracking-tight sm:text-2xl'>
+              <h1 className='truncate text-lg font-medium tracking-tight sm:text-xl'>
                 {displayName}
               </h1>
               <StatusBadge

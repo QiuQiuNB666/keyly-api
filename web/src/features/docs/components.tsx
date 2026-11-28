@@ -17,12 +17,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { Link } from '@tanstack/react-router'
-import { AlertTriangle } from 'lucide-react'
-import { Children, type ReactNode } from 'react'
+import { AlertTriangle, Check, Copy } from 'lucide-react'
+import { Children, useContext, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CopyButton } from '@/components/copy-button'
+import { Button } from '@/components/ui/button'
+import { fetchTokenKey } from '@/features/keys/api'
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
+
+import { DocKeyContext } from './doc-key-context'
 
 // Keyly API docs building blocks. Body copy is Chinese-only content (like
 // admin-provided About/Home content); UI chrome goes through t().
@@ -81,12 +86,52 @@ export function Bullets(props: { items: ReactNode[] }) {
   )
 }
 
+function SecretCopyButton(props: {
+  code: string
+  keyId: number
+  display: string
+}) {
+  const { t } = useTranslation()
+  const { copyToClipboard } = useCopyToClipboard({ notify: false })
+  const [state, setState] = useState<'idle' | 'loading' | 'copied'>('idle')
+  const copy = async () => {
+    setState('loading')
+    try {
+      const res = await fetchTokenKey(props.keyId)
+      const raw = res.success ? res.data?.key : undefined
+      if (!raw) throw new Error('no key')
+      const full = raw.startsWith('sk-') ? raw : `sk-${raw}`
+      const ok = await copyToClipboard(
+        props.code.split(props.display).join(full)
+      )
+      setState(ok ? 'copied' : 'idle')
+    } catch {
+      setState('idle')
+    }
+  }
+  return (
+    <Button
+      variant='ghost'
+      size='sm'
+      className='hover:bg-background h-8 rounded-full px-3 text-xs'
+      disabled={state === 'loading'}
+      onClick={() => void copy()}
+      aria-label={t('docs.copyWithKey')}
+    >
+      {state === 'copied' ? <Check className='text-success' /> : <Copy />}
+      {state === 'copied' ? t('Copied') : t('Copy')}
+    </Button>
+  )
+}
+
 export function CodeBlock(props: {
   code: string
   label?: string
   note?: ReactNode
 }) {
   const { t } = useTranslation()
+  const secret = useContext(DocKeyContext)
+  const usesKey = secret != null && props.code.includes(secret.display)
   return (
     <figure className='my-4'>
       <div className='bg-muted overflow-hidden rounded-2xl'>
@@ -94,14 +139,22 @@ export function CodeBlock(props: {
           <span className='text-muted-foreground text-xs'>
             {props.label ?? ''}
           </span>
-          <CopyButton
-            value={props.code}
-            size='sm'
-            className='h-8 rounded-full px-3 text-xs'
-            aria-label={t('Copy to clipboard')}
-          >
-            {t('Copy')}
-          </CopyButton>
+          {usesKey ? (
+            <SecretCopyButton
+              code={props.code}
+              keyId={secret.keyId}
+              display={secret.display}
+            />
+          ) : (
+            <CopyButton
+              value={props.code}
+              size='sm'
+              className='hover:bg-background h-8 rounded-full px-3 text-xs'
+              aria-label={t('Copy to clipboard')}
+            >
+              {t('Copy')}
+            </CopyButton>
+          )}
         </div>
         <pre className='overflow-x-auto px-4 pb-4 font-mono text-[13px] leading-6'>
           <code>{props.code}</code>
